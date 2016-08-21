@@ -1,0 +1,19 @@
+---
+
+- name: create postgresql databases
+  postgresql_db: name="{{ item.db }}"
+  with_items: "{{ user_db_list }}"
+
+- name: create postgresql users
+  postgresql_user: name="{{ item.user }}" db="{{ item.db }}" role_attr_flags=NOCREATEDB,NOSUPERUSER,NOCREATEROLE
+  with_items: "{{ user_db_list }}"
+  when: item.user != "wcs-au-quotidien"
+
+- name: create postgresql users
+  postgresql_user: name="{{ item.user }}" db="{{ item.db }}" role_attr_flags=CREATEDB,NOSUPERUSER,NOCREATEROLE
+  with_items: "{{ user_db_list }}"
+  when: item.user == "wcs-au-quotidien"
+
+- name: set postgresql databases owners
+  postgresql_db: name="{{ item.db }}" owner="{{ item.user }}"
+  with_items: "{{ user_db_list }}"

@@ -1,0 +1,14 @@
+---
+
+- name: install passerelle packages
+  apt: name=passerelle
+
+- name: add passerelle site
+  template: src=nginx/passerelle.j2 dest=/etc/nginx/sites-available/passerelle
+
+- name: enable nginx wcs site
+  file: src=/etc/nginx/sites-available/passerelle dest=/etc/nginx/sites-enabled/passerelle
+        state=link force=yes
+  notify: restart nginx
+
+- meta: flush_handlers

@@ -1,0 +1,23 @@
+---
+
+- name: install authentic package
+  apt: name=authentic2-multitenant
+
+- name: add authentic site
+  template: src=nginx/authentic2-multitenant.j2 dest=/etc/nginx/sites-available/authentic2-multitenant
+
+- name: enable nginx authentic site
+  file: src=/etc/nginx/sites-available/authentic2-multitenant dest=/etc/nginx/sites-enabled/authentic2-multitenant
+        state=link force=yes
+  notify: restart nginx
+
+- meta: flush_handlers
+
+- name: role provisionning via local RabbitMQ
+  lineinfile:
+    dest=/etc/authentic2-multitenant/config.py
+    line="HOBO_ROLE_EXPORT = True"
+    state=present
+  notify: restart authentic2-multitenant
+
+- meta: flush_handlers

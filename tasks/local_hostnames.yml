@@ -1,0 +1,36 @@
+---
+
+  - name: check whether --ask-become-pass is enabled
+    setup:
+    connection: local
+    register: sudo_local_pass
+    ignore_errors: true
+
+  - name: ensure that changing /etc/hosts is not required
+    lineinfile:
+      dest=/etc/hosts
+      line="127.0.0.1 {{ local_hostnames }}"
+      state=present
+    connection: local
+    ignore_errors: true
+    become: false
+    register: hosts_changed
+    when: sudo_local_pass | failed
+
+  - name: ask-become-pass is required
+    fail: msg="Local sudo password is required. Please run ansible once with --ask-become-pass option."
+    when: hosts_changed | failed
+
+  - name: add publik hostnames to /etc/hosts on localhost
+    lineinfile:
+      dest=/etc/hosts
+      line="127.0.0.1 {{ local_hostnames }}"
+      state=present
+    connection: local
+    when: sudo_local_pass | success
+
+  - name: add publik hostnames to /etc/hosts
+    lineinfile:
+      dest=/etc/hosts
+      line="127.0.0.1 {{ local_hostnames }}"
+      state=present

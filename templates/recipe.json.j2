@@ -1,0 +1,47 @@
+{
+  "variables": {
+    "hobo": "hobo.example.net",
+    "authentic": "connexion.example.net",
+    "combo": "portail.example.net",
+    "combo_agent": "backoffice.example.net",
+    "passerelle": "passerelle.example.net",
+    "wcs": "demarches.example.net" 
+  },
+  "steps": [
+    {"create-hobo": {
+      "url": "https://${hobo}/" 
+    }},
+    {"create-superuser": {
+      "email": "superuser@example.net",
+      "password": "example" 
+    }},
+    {"create-authentic": {
+      "url": "https://${authentic}/",
+      "title": "Connexion" 
+    }},
+    {"set-idp": {
+    }},
+    {"create-combo": {
+      "url": "https://${combo}/",
+      "title": "Compte citoyen",
+      "template_name": "portal-user" 
+    }},
+    {"create-combo": {
+      "url": "https://${combo_agent}/",
+      "slug": "portal-agent",
+      "title": "Portail agent",
+      "template_name": "portal-agent" 
+    }},
+    {"create-wcs": {
+      "url": "https://${wcs}/",
+      "title": "Démarches" 
+    }},
+    {"create-passerelle": {
+      "url": "https://${passerelle}/",
+      "title": "Passerelle" 
+    }},
+    {"set-theme": {
+      "theme": "publik" 
+    }}
+  ]
+}

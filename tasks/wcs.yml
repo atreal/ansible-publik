@@ -1,0 +1,26 @@
+---
+
+- name: install wcs packages
+  apt: name="{{ item }}"
+  with_items:
+  - wcs
+  - wcs-au-quotidien
+
+- name: disable wcs
+  service: name=wcs state=stopped enabled=no
+
+- name: enable wcs-au-quotidien
+  service: name=wcs-au-quotidien state=started
+  notify: restart wcs-au-quotidien
+
+- meta: flush_handlers
+
+- name: add wcs site
+  template: src=nginx/wcs.j2 dest=/etc/nginx/sites-available/wcs
+
+- name: enable nginx wcs site
+  file: src=/etc/nginx/sites-available/wcs dest=/etc/nginx/sites-enabled/wcs
+        state=link force=yes
+  notify: restart nginx
+
+- meta: flush_handlers

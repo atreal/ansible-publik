@@ -1,0 +1,17 @@
+---
+
+- name: update CA certificates
+  command: update-ca-certificates
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  register: nginx_restart
+
+- name: restart rabbitmq-server
+  service: name=rabbitmq-server state=restarted
+
+- name: restart authentic2-multitenant
+  service: name=authentic2-multitenant state=restarted
+
+- name: restart wcs-au-quotidien
+  service: name=wcs-au-quotidien state=restarted

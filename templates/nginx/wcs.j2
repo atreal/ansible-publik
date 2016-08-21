@@ -1,0 +1,35 @@
+# /etc/nginx/sites-available/wcs template
+server {
+    listen 443 ssl;
+    server_name demarches.*;    # indiquer ici le ou les noms des instances prévues
+
+    ssl_certificate /etc/ssl/certs/cert-example.pem;        # un certificat couvrant tous les noms des instances prévues
+    ssl_certificate_key /etc/ssl/private/cert-example.key;
+
+    access_log /var/log/nginx/wcs-access.log combined;
+    error_log /var/log/nginx/wcs-error.log;
+
+    location /qo { alias /usr/share/wcs/qommon/; }
+    location /apache-errors { alias /usr/share/auquotidien/apache-errors/; }
+    location /themes {
+        root /;
+        try_files /var/lib/wcs-au-quotidien/$host$uri /usr/share/wcs/$uri =404;
+    }
+
+    location / {
+        include scgi_params;
+        scgi_pass 127.0.0.1:3001;
+        scgi_param SCRIPT_NAME '';
+        scgi_param PATH_INFO $uri;
+        scgi_param HTTPS yes;
+    }
+}
+
+# catchall http → https
+server {
+    listen   80;
+    server_name  demarches.*;    # indiquer ici le ou les noms des instances prévues
+    access_log  /var/log/nginx/wcs-access.log combined;
+    error_log  /var/log/nginx/wcs-error.log;
+    return 301 https://$host$request_uri;
+}

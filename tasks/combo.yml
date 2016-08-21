@@ -1,0 +1,14 @@
+---
+
+- name: install combo package
+  apt: name=combo
+
+- name: add combo site
+  template: src=nginx/combo.j2 dest=/etc/nginx/sites-available/combo
+
+- name: enable nginx combo site
+  file: src=/etc/nginx/sites-available/combo dest=/etc/nginx/sites-enabled/combo
+        state=link force=yes
+  notify: restart nginx
+
+- meta: flush_handlers

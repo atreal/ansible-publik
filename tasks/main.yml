@@ -1,0 +1,65 @@
+---
+
+- include: local_hostnames.yml
+  when: local_hostnames is defined
+
+- include: local_ssl.yml
+  when: local_ssl is defined
+
+- name: add Entr'ouvert apt key
+  apt_key: url=https://deb.entrouvert.org/entrouvert.gpg id=2CCFEC25
+
+- name: add required repositories
+  apt_repository: repo="{{ item }}" update_cache=yes
+  with_items: required_repositories
+
+- name: install required packages
+  apt: name="{{ item }}" update_cache=yes
+  with_items: required_packages
+
+- include: postgresql.yml
+  become_user: postgres
+
+- include: hobo.yml
+- include: authentic.yml
+- include: combo.yml
+- include: wcs.yml
+- include: passerelle.yml
+
+- name: install publik base theme
+  apt: name=publik-base-theme
+
+
+- stat: path=/tmp/recipe.json
+  register: st_tmp
+- stat: path=~/recipe.json
+  register: st
+
+- name: add recipe.json
+  template: src=recipe.json.j2 dest=/tmp/recipe.json
+  when: not st_tmp.stat.exists and not st.stat.exists
+
+- name: create hobo instances (cook)
+  shell: sudo -u hobo hobo-manage cook /tmp/recipe.json
+  register: hobo_instances
+  when: not st.stat.exists
+
+- name: mv recipe.json
+  shell: mv /tmp/recipe.json ~/.
+  when: hobo_instances | success
+
+
+- name: enable sql for wcs
+  lineinfile:
+    dest=/var/lib/wcs-au-quotidien/demarches.example.net/site-options.cfg
+    insertafter="^\[options\]$"
+    line="postgresql = true"
+    state=present
+  register: wcs_sql
+
+- name: wcs sql conversion
+  shell: sudo -u wcs-au-quotidien wcsctl -f /etc/wcs/wcs-au-quotidien.cfg convert-to-sql --dbname=wcs_demarches_example_net demarches.example.net
+  when: wcs_sql.changed
+
+- name: info to initiate configuration
+  debug: msg="{{ publik_user_info }}"

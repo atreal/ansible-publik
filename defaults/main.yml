@@ -1,0 +1,21 @@
+---
+
+required_repositories:
+  - deb http://ftp.fr.debian.org/debian jessie-updates main
+  - deb http://ftp.fr.debian.org/debian jessie-backports main
+  - deb http://deb.entrouvert.org/ jessie main
+
+required_packages:
+  - nginx
+  - postgresql
+  - rabbitmq-server
+  - python-psycopg2
+
+user_db_list:     
+  - { user: "hobo", db: "hobo" }
+  - { user: "combo", db: "combo" }
+  - { user: "passerelle", db: "passerelle" }
+  - { user: "authentic-multitenant", db: "authentic-multitenant" }
+  - { user: "authentic-multitenant", db: "authentic2_multitenant" }
+  - { user: "wcs-au-quotidien", db: "wcs-au-quotidien" }
+  - { user: "wcs-au-quotidien", db: "wcs_demarches_example_net" }

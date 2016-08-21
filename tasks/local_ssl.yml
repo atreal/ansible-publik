@@ -1,0 +1,27 @@
+---
+
+- name: add private key
+  shell: openssl genrsa 2048 > /etc/ssl/private/cert-example.key
+    creates=/etc/ssl/private/cert-example.key
+
+- name: generate new csr
+  shell: openssl req \
+            -subj "/C=FR/ST=Ile-de-France/L=Asnieres-sur-Seine/O=Mairie d'Asnieres-sur-Seine/OU=Service communication/emailAddress=communication@mairieasnieres.fr/CN={{ local_ssl }}" \
+            -new -key /etc/ssl/private/cert-example.key > cert-example.csr
+    creates=cert-example.csr
+
+- name: add CA key
+  shell: openssl genrsa 2048 > ca.key
+    creates=ca.key
+
+- name: add CA cert
+  shell: openssl req \
+            -subj "/C=FR/ST=Ile-de-France/L=Asnieres-sur-Seine/O=Mairie d'Asnieres-sur-Seine/OU=Service communication/emailAddress=communication@mairieasnieres.fr/CN=cert_CA" \
+            -new -x509 -days 365 -key ca.key > /usr/local/share/ca-certificates/ca.crt
+    creates=/usr/local/share/ca-certificates/ca.crt
+  notify: update CA certificates
+
+- name: sign csr with CA
+  shell: openssl x509 -req -in cert-example.csr -out /etc/ssl/certs/cert-example.pem -CA /usr/local/share/ca-certificates/ca.crt -CAkey ca.key \
+            -CAcreateserial -CAserial ca.srl
+    creates=/etc/ssl/certs/cert-example.pem

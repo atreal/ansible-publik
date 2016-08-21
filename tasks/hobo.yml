@@ -1,0 +1,38 @@
+---
+
+- name: install hobo package
+  apt: name=hobo
+
+- name: add nginx hobo site
+  template: src=nginx/hobo.j2 dest=/etc/nginx/sites-available/hobo
+
+- name: enable nginx hobo site
+  file: src=/etc/nginx/sites-available/hobo dest=/etc/nginx/sites-enabled/hobo 
+        state=link force=yes
+  notify: restart nginx
+
+- meta: flush_handlers
+
+- name: restart hobo
+  service: name=hobo state=restarted
+  when: nginx_restart is defined and nginx_restart.changed
+
+- name: add rabbitmq.config
+  template: src=rabbitmq/rabbitmq.config.j2 dest=/etc/rabbitmq/rabbitmq.config
+  notify: restart rabbitmq-server
+
+- meta: flush_handlers
+
+- name: add rabbitmq hobo user
+  rabbitmq_user: user=hobo
+                 password="{{ hobo_password }}"
+                 configure_priv=.*
+                 read_priv=.*
+                 write_priv=.*
+                 state=present
+
+- name: install hobo-agent
+  apt: name=hobo-agent
+
+- name: run hobo-agent via supervisor
+  supervisorctl: name=hobo-agent state=present
