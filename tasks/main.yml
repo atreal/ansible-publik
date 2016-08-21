@@ -11,11 +11,11 @@
 
 - name: add required repositories
   apt_repository: repo="{{ item }}" update_cache=yes
-  with_items: required_repositories
+  with_items: "{{ required_repositories }}"
 
 - name: install required packages
   apt: name="{{ item }}" update_cache=yes
-  with_items: required_packages
+  with_items: "{{ required_packages }}"
 
 - include: postgresql.yml
   become_user: postgres

@@ -7,7 +7,10 @@
   - wcs-au-quotidien
 
 - name: disable wcs
-  service: name=wcs state=stopped enabled=no
+  service: name=wcs enabled=no
+
+- name: stop wcs
+  service: name=wcs state=stopped
 
 - name: enable wcs-au-quotidien
   service: name=wcs-au-quotidien state=started

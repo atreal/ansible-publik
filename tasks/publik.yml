@@ -20,7 +20,7 @@
 - name: mv recipe.json
   shell: mv /tmp/recipe.json ~/.
   when: hobo_instances | success
-
+  ignore_errors: true
 
 - name: enable sql for wcs
   lineinfile:
